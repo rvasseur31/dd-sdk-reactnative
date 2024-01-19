@@ -28,10 +28,10 @@ public class DatadogSDKWrapper {
     private init() {}
 
     // Initialization callbacks
-    private var onOnCoreInitializedListeners: [OnCoreInitializedListener] = []
+    internal var onCoreInitializedListeners: [OnCoreInitializedListener] = []
     
     public func addOnCoreInitializedListener(listener:@escaping OnCoreInitializedListener) {
-        onOnCoreInitializedListeners.append(listener)
+        onCoreInitializedListeners.append(listener)
     }
 
     // Core instance
@@ -54,7 +54,7 @@ public class DatadogSDKWrapper {
     ) -> Void {
         let core = Datadog.initialize(with: configuration, trackingConsent: trackingConsent)
         setCoreInstance(core: core)
-        for listener in onOnCoreInitializedListeners {
+        for listener in onCoreInitializedListeners {
             listener(core)
         }
     }
