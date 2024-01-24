@@ -95,9 +95,11 @@ public class DdSdkImplementation: NSObject {
         let rumConfig = buildRUMConfiguration(configuration: sdkConfiguration)
         RUM.enable(with: rumConfig, in: core)
         
-        Logs.enable(with: Logs.Configuration(), in: core)
+        let logsConfig = buildLogsConfiguration(configuration: sdkConfiguration)
+        Logs.enable(with: logsConfig, in: core)
         
-        Trace.enable(with: Trace.Configuration(), in: core)
+        let traceConfig = buildTraceConfiguration(configuration: sdkConfiguration)
+        Trace.enable(with: traceConfig, in: core)
 
         if sdkConfiguration.nativeCrashReportEnabled ?? false {
             CrashReporting.enable(in: core)
@@ -229,6 +231,11 @@ public class DdSdkImplementation: NSObject {
             )
         }
         
+        var customRUMEndpointURL: URL? = nil
+        if let customRUMEndpoint = configuration.customEndpoints?.rum as? NSString {
+            customRUMEndpointURL = URL(string: customRUMEndpoint as String)
+        }
+        
         return RUM.Configuration(
             applicationID: configuration.applicationId,
             sessionSampleRate: (configuration.sampleRate as? NSNumber)?.floatValue ?? 100.0,
@@ -251,8 +258,28 @@ public class DdSdkImplementation: NSObject {
                 }
                 return actionEvent
             },
+            customEndpoint: customRUMEndpointURL,
             telemetrySampleRate: (configuration.telemetrySampleRate as? NSNumber)?.floatValue ?? 20.0
         )
+    }
+    
+    func buildLogsConfiguration(configuration: DdSdkConfiguration) -> Logs.Configuration {
+        var customLogsEndpointURL: URL? = nil
+        if let customLogsEndpoint = configuration.customEndpoints?.logs as? NSString {
+            customLogsEndpointURL = URL(string: customLogsEndpoint as String)
+        }
+        
+        return Logs.Configuration(customEndpoint: customLogsEndpointURL)
+    }
+    
+    
+    func buildTraceConfiguration(configuration: DdSdkConfiguration) -> Trace.Configuration {
+        var customTraceEndpointURL: URL? = nil
+        if let customTraceEndpoint = configuration.customEndpoints?.trace as? NSString {
+            customTraceEndpointURL = URL(string: customTraceEndpoint as String)
+        }
+        
+        return Trace.Configuration(customEndpoint: customTraceEndpointURL)
     }
 
     func buildProxyConfiguration(config: NSDictionary?) -> [AnyHashable: Any]? {
